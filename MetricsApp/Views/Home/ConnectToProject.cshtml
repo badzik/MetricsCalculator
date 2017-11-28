@@ -1,0 +1,58 @@
+﻿@model MetricsApp.Models.ProjectDetails
+@{
+    ViewBag.Title = "ConnectToProject";
+}
+<script src="~/js/ConnectScript.js"></script>
+<link rel="stylesheet" href="~/css/ConnectToProject.css" />
+<div class="container-fluid">
+    <div class="card card-register mx-auto mt-5">
+        <div class="card-header">Connect to project</div>
+        <div class="card-body">
+            @using (Html.BeginForm())
+            {
+                <div id="ConnectForm">
+                    <div class="text-center mt-4 mb-5">
+                        <h4>GitHub details</h4>
+                    </div>
+                    <form>
+                        <div class="form-group">
+                            <div class="form-row">
+                                <div class="col-md-6">
+                                    <label for="GitHubProjectName">Project name</label>
+                                    <input class="form-control" id="GitHubProjectName" name="GitHubProjectName" type="text" placeholder="Enter project name">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="GitHubProjectOwner">Project owner</label>
+                                    <input class="form-control" id="GitHubProjectOwner" name="GitHubProjectOwner" type="text" placeholder="Enter project owner">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="GitHubToken">GitHub access token</label>
+                            <input class="form-control" id="GitHubToken" type="text" name="GitHubToken" aria-describedby="emailHelp" placeholder="Enter token">
+                        </div>
+                        <div class="text-center mt-4 mb-5">
+                            <h4>SonarQube details</h4>
+                        </div>
+                        <div class="form-group">
+                            <div class="form-row">
+                                <div class="col-md-6">
+                                    <label for="SonarServerUrl">SonarQube server</label>
+                                    <input class="form-control" id="SonarServerUrl" name="SonarServerUrl" type="url" placeholder="SonarQube server URL">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="SonarProjectName">Project name</label>
+                                    <input class="form-control" id="SonarProjectName" name="SonarProjectName" type="text" placeholder="Enter project name">
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary btn-block" type="submit" id="ConnectButton">Connect</button>
+                    </form>
+                </div>
+            }
+
+            <img class="loadingImg" style="display:none;" src="http://harpers.org/wp-content/themes/harpers/images/ajax_loader.gif" />
+        </div>
+    </div>
+</div>
+@Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })

@@ -48,6 +48,9 @@
       <HintPath>..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.7\lib\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="Octokit, Version=0.28.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\Octokit.0.28.0\lib\net45\Octokit.dll</HintPath>
     </Reference>
@@ -95,9 +98,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="css\ConnectToProject.css" />
     <Content Include="css\sb-admin.css" />
     <Content Include="css\sb-admin.min.css" />
     <Content Include="Global.asax" />
+    <Content Include="js\ConnectScript.js" />
     <Content Include="js\sb-admin-charts.js" />
     <Content Include="js\sb-admin-charts.min.js" />
     <Content Include="js\sb-admin-datatables.js" />
@@ -134,9 +139,12 @@
   <ItemGroup>
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\InfoController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\ProjectDetails.cs" />
+    <Compile Include="Models\SessionInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -208,6 +216,8 @@
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\Home\ConnectToProject.cshtml" />
+    <Content Include="Views\Info\Information.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -217,7 +227,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Models\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

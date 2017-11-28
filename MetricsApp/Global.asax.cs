@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MetricsApp.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -14,5 +15,16 @@ namespace MetricsApp
             AreaRegistration.RegisterAllAreas();
             RouteConfig.RegisterRoutes(RouteTable.Routes);
         }
+
+        void Session_Start(object sender, EventArgs e)
+        {
+            HttpContext.Current.Session.Add("SessionInfo", new SessionInfo()
+            {
+                Connected = false,
+                ProjectDetails = null
+            });
+        }
+
+
     }
 }
