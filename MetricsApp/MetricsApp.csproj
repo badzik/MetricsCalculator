@@ -102,6 +102,9 @@
     <Content Include="css\sb-admin.css" />
     <Content Include="css\sb-admin.min.css" />
     <Content Include="Global.asax" />
+    <Content Include="Graphics\connected.png" />
+    <Content Include="Graphics\disconnected.png" />
+    <Content Include="Graphics\metrics.png" />
     <Content Include="js\ConnectScript.js" />
     <Content Include="js\sb-admin-charts.js" />
     <Content Include="js\sb-admin-charts.min.js" />
@@ -140,9 +143,11 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\InfoController.cs" />
+    <Compile Include="Controllers\ProjectController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\InfoModel.cs" />
     <Compile Include="Models\ProjectDetails.cs" />
     <Compile Include="Models\SessionInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -216,8 +221,10 @@
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
-    <Content Include="Views\Home\ConnectToProject.cshtml" />
+    <Content Include="Views\Project\ConnectToProject.cshtml" />
     <Content Include="Views\Info\Information.cshtml" />
+    <Content Include="Views\Project\Issues.cshtml" />
+    <Content Include="Views\Project\CodeQuality.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

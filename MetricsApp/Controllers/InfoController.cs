@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MetricsApp.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -16,12 +17,18 @@ namespace MetricsApp.Controllers
 
         public ActionResult Information(string text)
         {
-            string temp = "No Info";
+            InfoModel model = new InfoModel();
             if (text == "SuccesfulConnect")
             {
-                temp = "Succesfully connected to all tools. Visit metrics page for more details.";
+                model.Text = "Succesfully connected to all tools. Visit metrics page for more details.";
+                model.ImgPath = "/Graphics/connected.png";
             }
-            return View((object)temp);
+            if(text== "Disconnected")
+            {
+                model.Text = "You have sucessfully disconnected from all project instruments.";
+                model.ImgPath = "/Graphics/disconnected.png";
+            }
+            return View(model);
         }
     }
 }

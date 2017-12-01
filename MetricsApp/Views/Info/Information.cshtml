@@ -1,16 +1,11 @@
-﻿@model string
+﻿@model MetricsApp.Models.InfoModel
 @{
     ViewBag.Title = "Information";
 }
 
-<div class="container">
-    <div class="row">
-
-                    <div class="panel-body">
-                        <div class="text-center">
-                            <h3 class="text-center">@Model</h3>
-                        </div>
-            </div>
-    </div>
+<h2>Information</h2>
+<div class="col-md-12">
+    <p class="col-md-6" style="display:inline-block">@Model.Text</p>
+    <img src="@Model.ImgPath" class="col-md-6" style='float: right;max-width:256px;max-height:256px' />
 </div>
 
