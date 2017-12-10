@@ -1,7 +1,80 @@
-﻿
-@{
-    ViewBag.Title = "Issues";
-}
+﻿@model MetricsApp.ViewModels.IssuesModel
+@using MetricsApp.ViewModels
 
-<h2>Issues</h2>
+<div class="container-fluid">
+    @Html.HiddenFor(x => x.ClosedIssues)
+    @Html.HiddenFor(x => x.OpenedIssues)
+    <input type="hidden" id="monthsCounter" value="@Model.ClosedIssuesForMonth.Count" />
+    @for (int i = 0; i < Model.ClosedIssuesForMonth.Count; i++)
+    {
+        <input type="hidden" id="monthName_@i" value="@Model.ClosedIssuesForMonth[i].MonthName" />
+        <input type="hidden" id='issuesForMonth_@i' value="@Model.ClosedIssuesForMonth[i].Issues" />
+    }
+    @Html.HiddenFor(x => x.ClosedIssues)
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a href="#">Metrics</a>
+        </li>
+        <li class="breadcrumb-item active">Issues</li>
+    </ol>
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Closed issues for month-->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <i class="fa fa-bar-chart"></i> Closed issues per month
+                </div>
+                <div class="card-body">
+                    <canvas id="closedIssuesPerMonthBarChart" width="100" height="50"></canvas>
+                </div>
+                <div class="card-footer small text-muted">Updated at @DateTime.Now</div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <!-- Open/Closed pie chart-->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <i class="fa fa-pie-chart"></i> Issues
+                </div>
+                <div class="card-body">
+                    <canvas id="issuesPieChart" width="100" height="100"></canvas>
+                </div>
+                <div class="card-footer small text-muted">Updated at @DateTime.Now</div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-7">
+            <!-- Issues statistics-->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <i class="fa fa-cogs"></i> Statistics
+                </div>
+                <div class="card-body">
+                    <h4>Average issue closing time: <b>@Model.AverageIssueClosingTime.TotalHours.ToString("0.00")</b> hours</h4>
+                    <h4>Estimated time to close all issues: <b>@Model.EstimatedTimeToCloseAllIssues.TotalHours.ToString("0.00")</b> hours</h4>
+                    <h4>The approximate date of closing all issues: <b>@Model.ExpectedDateForClosingAllIssues.ToString("MM/dd/yyyy")</b></h4>
+                </div>
+                <div class="card-footer small text-muted">Updated at @DateTime.Now</div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <!-- Best contributor-->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <i class="fa fa-user-o"></i> Contributor with largest number of clossed issues
+                </div>
+                <div class="card-body">
+                    <h4><a target="_blank" href="https://github.com/@Model.UserWithLargestIssuesClosed.User.Login">@Model.UserWithLargestIssuesClosed.User.Login</a></h4>
+                    <h4>Issues closed: <b>@Model.UserWithLargestIssuesClosed.Counter</b></h4>
+                </div>
+                <div class="card-footer small text-muted">Updated at @DateTime.Now</div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+<script src="~/vendor/chart.js/Chart.min.js"></script>
+<script src="~/js/issueChartsScript.js"></script>
 

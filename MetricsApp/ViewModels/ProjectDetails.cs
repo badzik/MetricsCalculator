@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 
-namespace MetricsApp.Models
+namespace MetricsApp.ViewModels
 {
     public class ProjectDetails
     {

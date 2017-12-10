@@ -4,9 +4,11 @@ using Octokit;
 using RestSharp;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using MetricsApp.ViewModels;
 
 namespace MetricsApp.Controllers
 {
@@ -105,7 +107,7 @@ namespace MetricsApp.Controllers
             return RedirectToAction("Information", "Info", new { text = "Disconnected" });
         }
 
-        public ActionResult Issues()
+        public async System.Threading.Tasks.Task<ActionResult> Issues()
         {
             SessionInfo sessionInfo = (SessionInfo)HttpContext.Session["SessionInfo"];
             if (!sessionInfo.Connected)
@@ -114,8 +116,89 @@ namespace MetricsApp.Controllers
             }
             else
             {
-                //calculate metrics
-                return View();
+                //Preparing model and gh client
+                IssuesModel model = new IssuesModel();
+                GitHubClient ghClient = prepareGitHubClient();
+
+                //Get all closed issues and calculate avg. closing time
+                var closedIssues = await ghClient.Issue.GetAllForRepository(sessionInfo.ProjectDetails.GitHubProjectOwner, sessionInfo.ProjectDetails.GitHubProjectName, new RepositoryIssueRequest() { State = ItemStateFilter.Closed});
+                TimeSpan totalTime = new TimeSpan();
+                foreach (Issue i in closedIssues)
+                {
+                    totalTime += i.ClosedAt.Value.Subtract(i.CreatedAt);
+                }
+                model.AverageIssueClosingTime = TimeSpan.FromSeconds(totalTime.TotalSeconds / closedIssues.Count);
+
+                //get opened issues
+                var openedIssues = await ghClient.Issue.GetAllForRepository(sessionInfo.ProjectDetails.GitHubProjectOwner, sessionInfo.ProjectDetails.GitHubProjectName, new RepositoryIssueRequest() { State = ItemStateFilter.Open });
+
+                model.ClosedIssues = closedIssues.Count;
+                model.OpenedIssues = openedIssues.Count;
+
+                //Calculate estimated time to close all issues based on avg. closing time and number of active contributors
+                var contributors = await ghClient.Repository.GetAllContributors(sessionInfo.ProjectDetails.GitHubProjectOwner, sessionInfo.ProjectDetails.GitHubProjectName);
+                int numberOfActiveContributors = 0;
+                foreach (RepositoryContributor c in contributors)
+                {
+                    if (c.Contributions > 0)
+                    {
+                        numberOfActiveContributors++;
+                    }
+                }
+                model.EstimatedTimeToCloseAllIssues = TimeSpan.FromSeconds((closedIssues.Count / numberOfActiveContributors) * model.AverageIssueClosingTime.TotalSeconds);
+
+                model.ExpectedDateForClosingAllIssues = DateTime.Now + model.EstimatedTimeToCloseAllIssues;
+
+                //Count closed issues for last six months, where [5] - this month, [4] - this.month -1 ...
+                model.ClosedIssuesForMonth = new List<IssueCountForMonth>();
+                int currentMonth = DateTime.Now.Month;
+                int startMonth = DateTime.Now.AddMonths(-6).Month;
+
+                for (int i = startMonth + 1; i <= currentMonth; i++)
+                {
+                    model.ClosedIssuesForMonth.Add(new IssueCountForMonth()
+                    {
+                        Issues = 0,
+                        MonthName = CultureInfo.GetCultureInfo("en-US").DateTimeFormat.GetMonthName(i)
+                    });
+                }
+
+                foreach (Issue i in closedIssues)
+                {
+                    int monthDifference = MonthDifference(DateTime.Now, i.ClosedAt.Value.DateTime);
+                    if (monthDifference < 6)
+                    {
+                        model.ClosedIssuesForMonth[monthDifference].Issues += 1;
+                    }
+                }
+
+                //Find the user with the largest number of closed issues, BUG ON OCKTOKIT
+                List<UserWithCounter> users = new List<UserWithCounter>();
+                foreach (Issue i in closedIssues)
+                {
+                    //Getting Issues one by one becasue when getting all closed by attribute is null
+                    var closedIssue = await ghClient.Issue.Get(sessionInfo.ProjectDetails.GitHubProjectOwner, sessionInfo.ProjectDetails.GitHubProjectName, i.Number);
+                    if (closedIssue.ClosedBy != null)
+                    {
+                        //if user exist in list increment his counter
+                        if (users.Where(u => u.User.Id.Equals(closedIssue.ClosedBy.Id)).Any())
+                        {
+                            users.Find(u => u.User.Id == closedIssue.ClosedBy.Id).Counter++;
+                        }
+                        //if not create new user in list
+                        else
+                        {
+                            users.Add(new UserWithCounter()
+                            {
+                                Counter = 1,
+                                User = closedIssue.ClosedBy
+                            });
+                        }
+                    }
+                }
+                model.UserWithLargestIssuesClosed = UserWithCounter.GetUserWithLargestCounter(users);
+
+                return View(model);
             }
 
         }
@@ -133,6 +216,22 @@ namespace MetricsApp.Controllers
                 return View();
             }
 
+        }
+
+        private GitHubClient prepareGitHubClient()
+        {
+            GitHubClient client;
+            Credentials tokenAuth;
+            SessionInfo sessionInfo = (SessionInfo)HttpContext.Session["SessionInfo"];
+            client = new GitHubClient(new ProductHeaderValue("MetricsApp"));
+            tokenAuth = new Credentials(sessionInfo.ProjectDetails.GitHubToken);
+            client.Credentials = tokenAuth;
+            return client;
+        }
+
+        public static int MonthDifference(DateTime lValue, DateTime rValue)
+        {
+            return (lValue.Month - rValue.Month) + 12 * (lValue.Year - rValue.Year);
         }
     }
 }

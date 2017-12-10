@@ -106,6 +106,7 @@
     <Content Include="Graphics\disconnected.png" />
     <Content Include="Graphics\metrics.png" />
     <Content Include="js\ConnectScript.js" />
+    <Content Include="js\issueChartsScript.js" />
     <Content Include="js\sb-admin-charts.js" />
     <Content Include="js\sb-admin-charts.min.js" />
     <Content Include="js\sb-admin-datatables.js" />
@@ -147,9 +148,12 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Models\InfoModel.cs" />
-    <Compile Include="Models\ProjectDetails.cs" />
+    <Compile Include="ViewModels\InfoModel.cs" />
+    <Compile Include="Models\IssueCountForMonth.cs" />
+    <Compile Include="ViewModels\IssuesModel.cs" />
+    <Compile Include="ViewModels\ProjectDetails.cs" />
     <Compile Include="Models\SessionInfo.cs" />
+    <Compile Include="Models\UserWithCounter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
