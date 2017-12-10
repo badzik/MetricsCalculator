@@ -146,7 +146,13 @@ namespace MetricsApp.Controllers
             else
             {
                 //calculate metrics
-
+                SonarQubeMetrics sqMetrics = new SonarQubeMetrics(sessionInfo.ProjectDetails.SonarProjectName, sessionInfo.ProjectDetails.SonarServerUrl);
+                TimeSpan time = sqMetrics.CalculateTimeForClosingImportantIssues();
+                TimeSpan time2 = sqMetrics.CalculateTimeForClosingAllIssues();
+                int bugs = sqMetrics.CountBugs();
+                int vulns = sqMetrics.CountVulnerabilities();
+                Double? coverage = sqMetrics.GetPercentageCoverage();
+                int duplicated = sqMetrics.GetNumberOfDuplicatedLines();
                 return View();
             }
 

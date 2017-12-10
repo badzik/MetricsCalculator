@@ -14,13 +14,13 @@ namespace MetricsApp.Metrics
         public string ProjectName { get; set; }
         public string ServerUrl { get; set; }
 
-        public SonarQubeMetrics(string projectName,string serverUrl)
+        public SonarQubeMetrics(string projectName, string serverUrl)
         {
             ProjectName = projectName;
             ServerUrl = serverUrl;
         }
 
-       public int CountBugs()
+        public int CountBugs()
         {
             int bugsCounter;
             var restClient = new RestClient(ServerUrl + "/api/measures/component?metricKeys=bugs&component=" + ProjectName);
@@ -52,6 +52,8 @@ namespace MetricsApp.Metrics
         {
             TimeSpan time = new TimeSpan();
             int counter = 0;
+            int page = 1;
+            int numberOfPages = 1;
             var restClient = new RestClient(ServerUrl + "/api/issues/search?componentKeys=" + ProjectName);
             var request = new RestRequest();
             request.Method = Method.GET;
@@ -59,13 +61,25 @@ namespace MetricsApp.Metrics
             request.Parameters.Clear();
             IRestResponse response = restClient.Execute(request);
             IssuesList issues = JsonConvert.DeserializeObject<IssuesList>(response.Content);
-            foreach (Issue i in issues.Issues)
+            numberOfPages = (int)Math.Ceiling((Double)issues.TotalIssues / issues.PageSize);
+            while (numberOfPages >= page)
             {
-                if (i.effort != null && i.effort != "")
+                restClient = new RestClient(ServerUrl + "/api/issues/search?componentKeys=" + ProjectName + "&p=" + page);
+                request = new RestRequest();
+                request.Method = Method.GET;
+                request.AddHeader("Accept", "application/json");
+                request.Parameters.Clear();
+                response = restClient.Execute(request);
+                issues = JsonConvert.DeserializeObject<IssuesList>(response.Content);
+                foreach (Issue i in issues.Issues)
                 {
-                    time += Parser.EffortParser(i.effort);
-                    counter++;
+                    if (i.effort != null && i.effort != "")
+                    {
+                        time += Parser.EffortParser(i.effort);
+                        counter++;
+                    }
                 }
+                page++;
             }
             return TimeSpan.FromSeconds(time.TotalSeconds / counter);
         }
@@ -75,6 +89,8 @@ namespace MetricsApp.Metrics
         {
             TimeSpan time = new TimeSpan();
             TimeSpan avgResolvTime = CalculateAverageTimeForResolvingIssue();
+            int page = 1;
+            int numberOfPages = 1;
             var restClient = new RestClient(ServerUrl + "/api/issues/search?componentKeys=" + ProjectName + "&types=BUG,VULNERABILITY");
             var request = new RestRequest();
             request.Method = Method.GET;
@@ -82,17 +98,29 @@ namespace MetricsApp.Metrics
             request.Parameters.Clear();
             IRestResponse response = restClient.Execute(request);
             IssuesList issues = JsonConvert.DeserializeObject<IssuesList>(response.Content);
-            foreach(Issue i in issues.Issues)
+            numberOfPages = (int)Math.Ceiling((Double)issues.TotalIssues / issues.PageSize);
+            while (numberOfPages >= page)
             {
-                if (i.effort != null && i.effort != "")
+                restClient = new RestClient(ServerUrl + "/api/issues/search?componentKeys=" + ProjectName + "&types=BUG,VULNERABILITY&p="+page);
+                request = new RestRequest();
+                request.Method = Method.GET;
+                request.AddHeader("Accept", "application/json");
+                request.Parameters.Clear();
+                response = restClient.Execute(request);
+                issues = JsonConvert.DeserializeObject<IssuesList>(response.Content);
+                foreach (Issue i in issues.Issues)
                 {
-                    time += Parser.EffortParser(i.effort);
+                    if (i.effort != null && i.effort != "")
+                    {
+                        time += Parser.EffortParser(i.effort);
+                    }
+                    else
+                    {
+                        time += avgResolvTime;
+                    }
+
                 }
-                else
-                {
-                    time += avgResolvTime;
-                }
-                
+                page++;
             }
             return time;
         }
@@ -102,6 +130,8 @@ namespace MetricsApp.Metrics
         {
             TimeSpan time = new TimeSpan();
             TimeSpan avgResolvTime = CalculateAverageTimeForResolvingIssue();
+            int page = 1;
+            int numberOfPages = 1;
             var restClient = new RestClient(ServerUrl + "/api/issues/search?componentKeys=" + ProjectName);
             var request = new RestRequest();
             request.Method = Method.GET;
@@ -109,16 +139,28 @@ namespace MetricsApp.Metrics
             request.Parameters.Clear();
             IRestResponse response = restClient.Execute(request);
             IssuesList issues = JsonConvert.DeserializeObject<IssuesList>(response.Content);
-            foreach (Issue i in issues.Issues)
+            numberOfPages = (int)Math.Ceiling((Double)issues.TotalIssues / issues.PageSize);
+            while (numberOfPages >= page)
             {
-                if (i.effort != null && i.effort != "")
+                restClient = new RestClient(ServerUrl + "/api/issues/search?componentKeys=" + ProjectName + "&p=" + page);
+                request = new RestRequest();
+                request.Method = Method.GET;
+                request.AddHeader("Accept", "application/json");
+                request.Parameters.Clear();
+                response = restClient.Execute(request);
+                issues = JsonConvert.DeserializeObject<IssuesList>(response.Content);
+                foreach (Issue i in issues.Issues)
                 {
-                    time += Parser.EffortParser(i.effort);
+                    if (i.effort != null && i.effort != "")
+                    {
+                        time += Parser.EffortParser(i.effort);
+                    }
+                    else
+                    {
+                        time += avgResolvTime;
+                    }
                 }
-                else
-                {
-                    time += avgResolvTime;
-                }
+                page++;
             }
             return time;
         }
@@ -133,7 +175,7 @@ namespace MetricsApp.Metrics
             request.Parameters.Clear();
             IRestResponse response = restClient.Execute(request);
             JsonComponent component = JsonConvert.DeserializeObject<JsonComponent>(response.Content);
-            duplicatedLines =(int)component.Component.Measures[0].Value;
+            duplicatedLines = (int)component.Component.Measures[0].Value;
             return duplicatedLines;
         }
 
@@ -151,7 +193,7 @@ namespace MetricsApp.Metrics
             {
                 coverage = component.Component.Measures[0].Value;
             }
-            return coverage; 
+            return coverage;
         }
 
 
