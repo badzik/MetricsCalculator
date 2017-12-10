@@ -148,7 +148,14 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\Parser.cs" />
     <Compile Include="Metrics\GitHubMetrics.cs" />
+    <Compile Include="Metrics\SonarQubeMetrics.cs" />
+    <Compile Include="SQJsonModels\Component.cs" />
+    <Compile Include="SQJsonModels\Issue.cs" />
+    <Compile Include="SQJsonModels\IssuesList.cs" />
+    <Compile Include="SQJsonModels\JsonComponent.cs" />
+    <Compile Include="SQJsonModels\Measure.cs" />
     <Compile Include="ViewModels\InfoModel.cs" />
     <Compile Include="Models\IssueCountForMonth.cs" />
     <Compile Include="ViewModels\IssuesModel.cs" />

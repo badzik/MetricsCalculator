@@ -10,6 +10,8 @@ using System.Web;
 using System.Web.Mvc;
 using MetricsApp.ViewModels;
 using MetricsApp.Metrics;
+using MetricsApp.SQJsonModels;
+using Newtonsoft.Json;
 
 namespace MetricsApp.Controllers
 {
@@ -144,20 +146,10 @@ namespace MetricsApp.Controllers
             else
             {
                 //calculate metrics
+
                 return View();
             }
 
-        }
-
-        private GitHubClient prepareGitHubClient()
-        {
-            GitHubClient client;
-            Credentials tokenAuth;
-            SessionInfo sessionInfo = (SessionInfo)HttpContext.Session["SessionInfo"];
-            client = new GitHubClient(new ProductHeaderValue("MetricsApp"));
-            tokenAuth = new Credentials(sessionInfo.ProjectDetails.GitHubToken);
-            client.Credentials = tokenAuth;
-            return client;
         }
     }
 }
