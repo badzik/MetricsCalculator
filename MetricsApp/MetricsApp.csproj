@@ -148,6 +148,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Metrics\GitHubMetrics.cs" />
     <Compile Include="ViewModels\InfoModel.cs" />
     <Compile Include="Models\IssueCountForMonth.cs" />
     <Compile Include="ViewModels\IssuesModel.cs" />
