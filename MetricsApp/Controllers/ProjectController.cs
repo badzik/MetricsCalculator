@@ -120,7 +120,7 @@ namespace MetricsApp.Controllers
             else
             {
                 //Preparing model and metrics object
-                GitHubMetrics ghMetrics = new GitHubMetrics(sessionInfo.ProjectDetails.GitHubProjectName, sessionInfo.ProjectDetails.GitHubProjectOwner,sessionInfo.ProjectDetails.GitHubToken);
+                GitHubMetrics ghMetrics = new GitHubMetrics(sessionInfo.ProjectDetails.GitHubProjectName, sessionInfo.ProjectDetails.GitHubProjectOwner, sessionInfo.ProjectDetails.GitHubToken);
                 IssuesModel model = new IssuesModel();
 
                 model.AverageIssueClosingTime = await ghMetrics.CalculateAverageIssueClosingTimeAsync();
@@ -136,7 +136,7 @@ namespace MetricsApp.Controllers
 
         }
 
-        public ActionResult CodeQuality()
+        public async System.Threading.Tasks.Task<ActionResult> ProjectQuality()
         {
             SessionInfo sessionInfo = (SessionInfo)HttpContext.Session["SessionInfo"];
             if (!sessionInfo.Connected)
@@ -146,16 +146,38 @@ namespace MetricsApp.Controllers
             else
             {
                 //calculate metrics
+                GitHubMetrics ghMetrics = new GitHubMetrics(sessionInfo.ProjectDetails.GitHubProjectName, sessionInfo.ProjectDetails.GitHubProjectOwner, sessionInfo.ProjectDetails.GitHubToken);
                 SonarQubeMetrics sqMetrics = new SonarQubeMetrics(sessionInfo.ProjectDetails.SonarProjectName, sessionInfo.ProjectDetails.SonarServerUrl);
-                TimeSpan time = sqMetrics.CalculateTimeForClosingImportantIssues();
-                TimeSpan time2 = sqMetrics.CalculateTimeForClosingAllIssues();
-                int bugs = sqMetrics.CountBugs();
-                int vulns = sqMetrics.CountVulnerabilities();
-                Double? coverage = sqMetrics.GetPercentageCoverage();
-                int duplicated = sqMetrics.GetNumberOfDuplicatedLines();
-                return View();
+                MixedMetrics mMetrics = new MixedMetrics(ghMetrics, sqMetrics);
+                ProjectQualityViewModel pqModel = new ProjectQualityViewModel();
+                pqModel.ProjectQuality = await mMetrics.CalculateQualityFactors();
+                pqModel.EstimatedTimeToBetaRelease =await mMetrics.CalculateTimeToBetaRelease();
+                pqModel.EstimatedTimeToFullRelease =await mMetrics.CalculateTimeToFullRelease();
+                return View(pqModel);
             }
 
+        }
+
+        public async System.Threading.Tasks.Task<ActionResult> CodeAnalysis()
+        {
+            SessionInfo sessionInfo = (SessionInfo)HttpContext.Session["SessionInfo"];
+            if (!sessionInfo.Connected)
+            {
+                return RedirectToAction("ConnectToProject", "Project");
+            }
+            else
+            {
+                GitHubMetrics ghMetrics = new GitHubMetrics(sessionInfo.ProjectDetails.GitHubProjectName, sessionInfo.ProjectDetails.GitHubProjectOwner, sessionInfo.ProjectDetails.GitHubToken);
+                SonarQubeMetrics sqMetrics = new SonarQubeMetrics(sessionInfo.ProjectDetails.SonarProjectName, sessionInfo.ProjectDetails.SonarServerUrl);
+                CodeAnalysisViewModel baVmodel = new CodeAnalysisViewModel();
+                baVmodel.AverageIssueEffort = sqMetrics.CalculateAverageTimeForResolvingIssue();
+                baVmodel.EstTimeToFixAllIssues = TimeSpan.FromSeconds(sqMetrics.CalculateTimeForClosingAllIssues().TotalSeconds / await ghMetrics.GetNumberOfActiveContributorsAsync());
+                baVmodel.EstTimeToFixImportantIssues = TimeSpan.FromSeconds(sqMetrics.CalculateTimeForClosingAllImportantIssues().TotalSeconds / await ghMetrics.GetNumberOfActiveContributorsAsync());
+                baVmodel.IssuesCountWithSeverity = sqMetrics.GetIssuesCountWithSeverity();
+                baVmodel.ExpectedDateForClosingAllIssues = DateTime.Now + baVmodel.EstTimeToFixAllIssues;
+                baVmodel.CodeQuality = sqMetrics.CalculateCodeQuality();
+                return View(baVmodel);
+            }
         }
     }
 }

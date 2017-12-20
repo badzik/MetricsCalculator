@@ -6,6 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using MetricsApp.Models;
+using MetricsApp.Enums;
 
 namespace MetricsApp.Metrics
 {
@@ -32,6 +34,48 @@ namespace MetricsApp.Metrics
             JsonComponent component = JsonConvert.DeserializeObject<JsonComponent>(response.Content);
             bugsCounter = (int)component.Component.Measures[0].Value;
             return bugsCounter;
+        }
+
+        public int GetNumberOfAllLines()
+        {
+            int linesCount;
+            var restClient = new RestClient(ServerUrl + "/api/measures/component?metricKeys=ncloc&component=" + ProjectName);
+            var request = new RestRequest();
+            request.Method = Method.GET;
+            request.AddHeader("Accept", "application/json");
+            request.Parameters.Clear();
+            IRestResponse response = restClient.Execute(request);
+            JsonComponent component = JsonConvert.DeserializeObject<JsonComponent>(response.Content);
+            linesCount = (int)component.Component.Measures[0].Value;
+            return linesCount;
+        }
+
+        public int GetNumberOfMinorIssues()
+        {
+            int counter = 0;
+            var restClient = new RestClient(ServerUrl + "/api/issues/search?componentKeys=" + ProjectName + "&types=BUG,VULNERABILITY,CODE_SMELL&severities=MINOR,INFO");
+            var request = new RestRequest();
+            request.Method = Method.GET;
+            request.AddHeader("Accept", "application/json");
+            request.Parameters.Clear();
+            IRestResponse response = restClient.Execute(request);
+            IssuesList issues = JsonConvert.DeserializeObject<IssuesList>(response.Content);
+            counter = issues.TotalIssues;
+            return counter;
+        }
+
+        public int GetNumberOfMajorIssues()
+        {
+            int counter = 0;
+            var restClient = new RestClient(ServerUrl + "/api/issues/search?componentKeys=" + ProjectName + "&types=BUG,VULNERABILITY,CODE_SMELL&severities=BLOCKER,CRITICAL,MAJOR");
+            var request = new RestRequest();
+            request.Method = Method.GET;
+            request.AddHeader("Accept", "application/json");
+            request.Parameters.Clear();
+            IRestResponse response = restClient.Execute(request);
+            IssuesList issues = JsonConvert.DeserializeObject<IssuesList>(response.Content);
+            counter = issues.TotalIssues;
+            return counter;
         }
 
         public int CountVulnerabilities()
@@ -84,8 +128,88 @@ namespace MetricsApp.Metrics
             return TimeSpan.FromSeconds(time.TotalSeconds / counter);
         }
 
+        //Summarize effort for closing major,critical and blocker issues
+        public TimeSpan CalculateTimeForClosingAllImportantIssues()
+        {
+            TimeSpan time = new TimeSpan();
+            TimeSpan avgResolvTime = CalculateAverageTimeForResolvingIssue();
+            int page = 1;
+            int numberOfPages = 1;
+            var restClient = new RestClient(ServerUrl + "/api/issues/search?componentKeys=" + ProjectName + "&types=BUG,VULNERABILITY,CODE_SMELL&severities=BLOCKER,CRITICAL,MAJOR");
+            var request = new RestRequest();
+            request.Method = Method.GET;
+            request.AddHeader("Accept", "application/json");
+            request.Parameters.Clear();
+            IRestResponse response = restClient.Execute(request);
+            IssuesList issues = JsonConvert.DeserializeObject<IssuesList>(response.Content);
+            numberOfPages = (int)Math.Ceiling((Double)issues.TotalIssues / issues.PageSize);
+            while (numberOfPages >= page)
+            {
+                restClient = new RestClient(ServerUrl + "/api/issues/search?componentKeys=" + ProjectName + "&types=BUG,VULNERABILITY&p=" + page);
+                request = new RestRequest();
+                request.Method = Method.GET;
+                request.AddHeader("Accept", "application/json");
+                request.Parameters.Clear();
+                response = restClient.Execute(request);
+                issues = JsonConvert.DeserializeObject<IssuesList>(response.Content);
+                foreach (Issue i in issues.Issues)
+                {
+                    if (i.effort != null && i.effort != "")
+                    {
+                        time += Parser.EffortParser(i.effort);
+                    }
+                    else
+                    {
+                        time += avgResolvTime;
+                    }
+
+                }
+                page++;
+            }
+            return time;
+        }
+
+        public CodeQualityFactors CalculateCodeQuality()
+        {
+            CodeQualityFactors cqFactors = new CodeQualityFactors();
+            int duplicatedLines = GetNumberOfDuplicatedLines();
+            int allLines = GetNumberOfAllLines();
+            double? coverage = GetPercentageCoverage();
+            int projectComplexity = GetProjectComplexity();
+            int numberOfMajorIssues = GetNumberOfMajorIssues();
+
+            double maxAllowedComplexity = allLines / 10;
+            double maxAllowedMajorIssues = allLines / 1000;
+
+            double percentageUncoverage = coverage.HasValue ? coverage.Value : 100;
+            double complexity= projectComplexity > maxAllowedComplexity ? 1 : projectComplexity / maxAllowedComplexity;
+            double majorIssuesRatio = numberOfMajorIssues > maxAllowedMajorIssues ? 1 : numberOfMajorIssues / maxAllowedMajorIssues;
+
+            cqFactors.ComplexityRatio = 10 * complexity;
+            cqFactors.DuplicatedLinesRatio = 20 * (duplicatedLines / allLines);
+            cqFactors.MajorIssuesRatio = 50 * majorIssuesRatio;
+            cqFactors.TestUncoverageRatio = 30 * (percentageUncoverage / 100);
+            cqFactors.CodeQuality = 100 - (cqFactors.TestUncoverageRatio + cqFactors.DuplicatedLinesRatio + cqFactors.ComplexityRatio + cqFactors.MajorIssuesRatio);
+
+            return cqFactors;
+        }
+
+        public int GetProjectComplexity()
+        {
+            int complexity = 0;
+            var restClient = new RestClient(ServerUrl + "/api/measures/component?metricKeys=complexity&component=" + ProjectName);
+            var request = new RestRequest();
+            request.Method = Method.GET;
+            request.AddHeader("Accept", "application/json");
+            request.Parameters.Clear();
+            IRestResponse response = restClient.Execute(request);
+            JsonComponent component = JsonConvert.DeserializeObject<JsonComponent>(response.Content);
+            complexity = (int)component.Component.Measures[0].Value;
+            return complexity;
+        }
+
         //Summarize time effort to fix bugs and vulnerabilites
-        public TimeSpan CalculateTimeForClosingImportantIssues()
+        public TimeSpan CalculateTimeForClosingBugsAndVulnerabilitiesIssues()
         {
             TimeSpan time = new TimeSpan();
             TimeSpan avgResolvTime = CalculateAverageTimeForResolvingIssue();
@@ -101,7 +225,7 @@ namespace MetricsApp.Metrics
             numberOfPages = (int)Math.Ceiling((Double)issues.TotalIssues / issues.PageSize);
             while (numberOfPages >= page)
             {
-                restClient = new RestClient(ServerUrl + "/api/issues/search?componentKeys=" + ProjectName + "&types=BUG,VULNERABILITY&p="+page);
+                restClient = new RestClient(ServerUrl + "/api/issues/search?componentKeys=" + ProjectName + "&types=BUG,VULNERABILITY&p=" + page);
                 request = new RestRequest();
                 request.Method = Method.GET;
                 request.AddHeader("Accept", "application/json");
@@ -163,6 +287,50 @@ namespace MetricsApp.Metrics
                 page++;
             }
             return time;
+        }
+
+        internal List<IssueCountWithSeverity> GetIssuesCountWithSeverity()
+        {
+            List<IssueCountWithSeverity> issuesList = new List<IssueCountWithSeverity>();
+
+            int page = 1;
+            int numberOfPages = 1;
+            var restClient = new RestClient(ServerUrl + "/api/issues/search?componentKeys=" + ProjectName);
+            var request = new RestRequest();
+            request.Method = Method.GET;
+            request.AddHeader("Accept", "application/json");
+            request.Parameters.Clear();
+            IRestResponse response = restClient.Execute(request);
+            IssuesList issues = JsonConvert.DeserializeObject<IssuesList>(response.Content);
+            numberOfPages = (int)Math.Ceiling((Double)issues.TotalIssues / issues.PageSize);
+            while (numberOfPages >= page)
+            {
+                restClient = new RestClient(ServerUrl + "/api/issues/search?componentKeys=" + ProjectName + "&p=" + page);
+                request = new RestRequest();
+                request.Method = Method.GET;
+                request.AddHeader("Accept", "application/json");
+                request.Parameters.Clear();
+                response = restClient.Execute(request);
+                issues = JsonConvert.DeserializeObject<IssuesList>(response.Content);
+                foreach (Issue i in issues.Issues)
+                {
+                    if (issuesList.Exists(x => x.Severity.ToString().Equals(i.severity)))
+                    {
+                        issuesList.Find(x => x.Severity.ToString().Equals(i.severity)).Counter++;
+                    }
+                    else
+                    {
+                        issuesList.Add(new IssueCountWithSeverity()
+                        {
+                            Counter = 1,
+                            Severity = (Severity)Enum.Parse(typeof(Severity), i.severity)
+                        });
+
+                    }
+                }
+                page++;
+            }
+            return issuesList;
         }
 
         public int GetNumberOfDuplicatedLines()

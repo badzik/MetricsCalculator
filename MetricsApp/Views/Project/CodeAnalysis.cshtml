@@ -1,0 +1,79 @@
+﻿@model MetricsApp.ViewModels.CodeAnalysisViewModel
+@using MetricsApp.ViewModels
+
+<div class="container-fluid">
+    @for (int i = 0; i < Model.IssuesCountWithSeverity.Count; i++)
+    {
+        <input type="hidden" id="issuesCounter_@i" value="@Model.IssuesCountWithSeverity[i].Counter" />
+        <input type="hidden" id='severityName_@i' value="@Model.IssuesCountWithSeverity[i].Severity.ToString()" />
+    }
+    <input type="hidden" id="issuesTypesCount" value="@Model.IssuesCountWithSeverity.Count" />
+    <input type="hidden" id="complexity" value="@Model.CodeQuality.ComplexityRatio" />
+    <input type="hidden" id="duplicatedLines" value="@Model.CodeQuality.DuplicatedLinesRatio" />
+    <input type="hidden" id="majorIssues" value="@Model.CodeQuality.MajorIssuesRatio" />
+    <input type="hidden" id="testUncoverage" value="@Model.CodeQuality.TestUncoverageRatio" />
+    <input type="hidden" id="codeQuality" value="@Model.CodeQuality.CodeQuality" />
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a href="#">Metrics</a>
+        </li>
+        <li class="breadcrumb-item active">Code Analysis</li>
+    </ol>
+    <div class="row">
+        <div class="col-lg-7">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <i class="fa fa-cogs"></i> Statistics
+                </div>
+                <div class="card-body">
+                    <h4>Average effort to fix a code problem: <b>@Model.AverageIssueEffort.TotalHours.ToString("0.00")</b> hours</h4>
+                    <h4>Estimated time to fix major code problems: <b>@Model.EstTimeToFixImportantIssues.TotalHours.ToString("0.00")</b> hours</h4>
+                    <h4>Estimated time to fix all code problems: <b>@Model.EstTimeToFixAllIssues.TotalHours.ToString("0.00")</b> hours</h4>
+                    <h4>The approximate date of fixing all code problems: <b>@Model.ExpectedDateForClosingAllIssues.ToString("MM/dd/yyyy")</b></h4>
+                </div>
+                <div class="card-footer small text-muted">Updated at @DateTime.Now</div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <!-- Issues pie chart-->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <i class="fa fa-pie-chart"></i> Code Issues
+                </div>
+                <div class="card-body">
+                    <canvas id="issuesPieChart" width="100" height="100"></canvas>
+                </div>
+                <div class="card-footer small text-muted">Updated at @DateTime.Now</div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-7">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <i class="fa fa-cogs"></i> Code quality
+                </div>
+                <div class="card-body">
+                    <h4><b>Code Quality:</b></h4>
+                    <h4 id="codeQualityBox"><b id="codeQualityVal">@Model.CodeQuality.CodeQuality</b>/100</h4>                
+                </div>
+                <div class="card-footer small text-muted">Updated at @DateTime.Now</div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <!-- Code quality pie chart-->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <i class="fa fa-pie-chart"></i> Quality factors
+                </div>
+                <div class="card-body">
+                    <canvas id="qualityFactorsPieChart" width="100" height="100"></canvas>
+                </div>
+                <div class="card-footer small text-muted">Updated at @DateTime.Now</div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/vendor/chart.js/Chart.min.js"></script>
+<script src="~/js/CodeAnalysisScript.js"></script>
+

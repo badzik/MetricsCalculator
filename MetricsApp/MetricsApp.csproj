@@ -105,6 +105,7 @@
     <Content Include="Graphics\connected.png" />
     <Content Include="Graphics\disconnected.png" />
     <Content Include="Graphics\metrics.png" />
+    <Content Include="js\CodeAnalysisScript.js" />
     <Content Include="js\ConnectScript.js" />
     <Content Include="js\issueChartsScript.js" />
     <Content Include="js\sb-admin-charts.js" />
@@ -145,17 +146,25 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\InfoController.cs" />
     <Compile Include="Controllers\ProjectController.cs" />
+    <Compile Include="Enums\Severity.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\Parser.cs" />
     <Compile Include="Metrics\GitHubMetrics.cs" />
+    <Compile Include="Metrics\MixedMetrics.cs" />
     <Compile Include="Metrics\SonarQubeMetrics.cs" />
+    <Compile Include="Models\ProjectQualityFactors.cs" />
+    <Compile Include="Models\CodeQualityFactors.cs" />
+    <Compile Include="Models\IssueCountWithSeverity.cs" />
+    <Compile Include="Models\QualityFactor.cs" />
     <Compile Include="SQJsonModels\Component.cs" />
     <Compile Include="SQJsonModels\Issue.cs" />
     <Compile Include="SQJsonModels\IssuesList.cs" />
     <Compile Include="SQJsonModels\JsonComponent.cs" />
     <Compile Include="SQJsonModels\Measure.cs" />
+    <Compile Include="ViewModels\CodeAnalysisViewModel.cs" />
+    <Compile Include="ViewModels\ProjectQualityViewModel.cs" />
     <Compile Include="ViewModels\InfoModel.cs" />
     <Compile Include="Models\IssueCountForMonth.cs" />
     <Compile Include="ViewModels\IssuesModel.cs" />
@@ -236,7 +245,8 @@
     <Content Include="Views\Project\ConnectToProject.cshtml" />
     <Content Include="Views\Info\Information.cshtml" />
     <Content Include="Views\Project\Issues.cshtml" />
-    <Content Include="Views\Project\CodeQuality.cshtml" />
+    <Content Include="Views\Project\ProjectQuality.cshtml" />
+    <Content Include="Views\Project\CodeAnalysis.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
