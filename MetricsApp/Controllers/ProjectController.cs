@@ -129,11 +129,21 @@ namespace MetricsApp.Controllers
                 model.EstimatedTimeToCloseAllIssues = await ghMetrics.CalculateEstimatedTimeToCloseAllIssuesAsync();
                 model.ExpectedDateForClosingAllIssues = DateTime.Now + model.EstimatedTimeToCloseAllIssues;
                 model.ClosedIssuesForMonth = await ghMetrics.CountClosedIssuesForLastSixMonthsAsync();
-                model.UserWithLargestIssuesClosed = await ghMetrics.FindUserWithLargestNumberOfClosedIssuesAsync();
+                model.UserWithLargestIssuesClosed = null;
 
                 return View(model);
             }
 
+        }
+
+        [HttpPost]
+        public async System.Threading.Tasks.Task<ActionResult> GetBestContributorAsync()
+        {
+            BestUserPartialModel buPmodel = new BestUserPartialModel();
+            SessionInfo sessionInfo = (SessionInfo)HttpContext.Session["SessionInfo"];
+            GitHubMetrics ghMetrics = new GitHubMetrics(sessionInfo.ProjectDetails.GitHubProjectName, sessionInfo.ProjectDetails.GitHubProjectOwner, sessionInfo.ProjectDetails.GitHubToken);
+            buPmodel.UserWithLargestIssuesClosed = await ghMetrics.FindUserWithLargestNumberOfClosedIssuesAsync();
+            return PartialView("_BestUser",buPmodel);
         }
 
         public async System.Threading.Tasks.Task<ActionResult> ProjectQuality()

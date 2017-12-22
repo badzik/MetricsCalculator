@@ -24,7 +24,7 @@ namespace MetricsApp.Metrics
 
         public int CountBugs()
         {
-            int bugsCounter;
+            int bugsCounter=0;
             var restClient = new RestClient(ServerUrl + "/api/measures/component?metricKeys=bugs&component=" + ProjectName);
             var request = new RestRequest();
             request.Method = Method.GET;
@@ -38,7 +38,7 @@ namespace MetricsApp.Metrics
 
         public int GetNumberOfAllLines()
         {
-            int linesCount;
+            int linesCount=0;
             var restClient = new RestClient(ServerUrl + "/api/measures/component?metricKeys=ncloc&component=" + ProjectName);
             var request = new RestRequest();
             request.Method = Method.GET;
@@ -80,7 +80,7 @@ namespace MetricsApp.Metrics
 
         public int CountVulnerabilities()
         {
-            int vulCounter;
+            int vulCounter=0;
             var restClient = new RestClient(ServerUrl + "/api/measures/component?metricKeys=vulnerabilities&component=" + ProjectName);
             var request = new RestRequest();
             request.Method = Method.GET;
@@ -124,6 +124,10 @@ namespace MetricsApp.Metrics
                     }
                 }
                 page++;
+            }
+            if (counter == 0)
+            {
+                return TimeSpan.FromSeconds(0);
             }
             return TimeSpan.FromSeconds(time.TotalSeconds / counter);
         }
@@ -178,18 +182,18 @@ namespace MetricsApp.Metrics
             int projectComplexity = GetProjectComplexity();
             int numberOfMajorIssues = GetNumberOfMajorIssues();
 
-            double maxAllowedComplexity = allLines / 10;
-            double maxAllowedMajorIssues = allLines / 1000;
+            double maxAllowedComplexity = Math.Round((double)allLines / 10);
+            double maxAllowedMajorIssues = Math.Round((double)allLines / 1000);
 
-            double percentageUncoverage = coverage.HasValue ? coverage.Value : 100;
-            double complexity= projectComplexity > maxAllowedComplexity ? 1 : projectComplexity / maxAllowedComplexity;
-            double majorIssuesRatio = numberOfMajorIssues > maxAllowedMajorIssues ? 1 : numberOfMajorIssues / maxAllowedMajorIssues;
+            double percentageUncoverage = coverage.HasValue ? coverage.Value : 100.0;
+            double complexity= projectComplexity > maxAllowedComplexity ? 1 : (double)projectComplexity / maxAllowedComplexity;
+            double majorIssuesRatio = numberOfMajorIssues > maxAllowedMajorIssues ? 1 : (double)numberOfMajorIssues / maxAllowedMajorIssues;
 
-            cqFactors.ComplexityRatio = 10 * complexity;
-            cqFactors.DuplicatedLinesRatio = 20 * (duplicatedLines / allLines);
-            cqFactors.MajorIssuesRatio = 50 * majorIssuesRatio;
-            cqFactors.TestUncoverageRatio = 30 * (percentageUncoverage / 100);
-            cqFactors.CodeQuality = 100 - (cqFactors.TestUncoverageRatio + cqFactors.DuplicatedLinesRatio + cqFactors.ComplexityRatio + cqFactors.MajorIssuesRatio);
+            cqFactors.ComplexityRatio = Math.Round(10.0 * (double)complexity);
+            cqFactors.DuplicatedLinesRatio = Math.Round(20.0 * ((double)duplicatedLines / allLines));
+            cqFactors.MajorIssuesRatio = Math.Round(50.0 * (double)majorIssuesRatio);
+            cqFactors.TestUncoverageRatio = Math.Round(20.0 * ((double)percentageUncoverage / 100));
+            cqFactors.CodeQuality = 100 - ((double)cqFactors.TestUncoverageRatio + cqFactors.DuplicatedLinesRatio + cqFactors.ComplexityRatio + cqFactors.MajorIssuesRatio);
 
             return cqFactors;
         }

@@ -47,6 +47,10 @@ namespace MetricsApp.Metrics
             {
                 await prepareBasicMetrics();
             }
+            if (closedIssues.Count == 0)
+            {
+                return TimeSpan.FromSeconds(0);
+            }
             TimeSpan totalTime = new TimeSpan();
             TimeSpan avgIssueClosingTime;
             foreach (Issue i in closedIssues)
@@ -101,6 +105,10 @@ namespace MetricsApp.Metrics
             }
             int numberOfActiveContributors = await GetNumberOfActiveContributorsAsync();
             TimeSpan avgIssueClosingTime = await CalculateAverageIssueClosingTimeAsync();
+            if (numberOfActiveContributors == 0)
+            {
+                return TimeSpan.FromSeconds(0);
+            }
             return TimeSpan.FromSeconds((closedIssues.Count /numberOfActiveContributors) *(avgIssueClosingTime.TotalSeconds));
         }
 

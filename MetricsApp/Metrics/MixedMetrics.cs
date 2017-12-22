@@ -26,21 +26,21 @@ namespace MetricsApp.Metrics
             int allLines = sqClient.GetNumberOfAllLines();
             int numberOfMinorIssues = sqClient.GetNumberOfMinorIssues();
 
-            Double maxNumberOfMinorIssues = allLines / 100;
+            Double maxNumberOfMinorIssues = Math.Round((double)allLines / 100);
             pFactors.CodeQualityRatio = 0.6;
             if ((openedIssues+closedIssues)>0)
             {
-                pFactors.KnownIssuesRatio = (openedIssues / (closedIssues + openedIssues));
+                pFactors.KnownIssuesRatio = Math.Round(((double)openedIssues / (closedIssues + openedIssues))*70.0 * 0.4);
             }
             else
             {
-                pFactors.KnownIssuesRatio = 0;
+                pFactors.KnownIssuesRatio = Math.Round(70.0 * 0.4);
             }
 
-            pFactors.MinorIssuesRatio = numberOfMinorIssues > maxNumberOfMinorIssues ? 1 : numberOfMinorIssues / maxNumberOfMinorIssues;
+            pFactors.MinorIssuesRatio = numberOfMinorIssues > maxNumberOfMinorIssues ? Math.Round(30.0 * 0.4): Math.Round(((double)numberOfMinorIssues / maxNumberOfMinorIssues)*30.0*0.4);
 
-            pFactors.ProjectQuality = 100-((pFactors.CodeQualityRatio * (100-cqFactors.CodeQuality)) + (((pFactors.KnownIssuesRatio * 70) + (pFactors.MinorIssuesRatio*30))*0.4));
-
+            pFactors.ProjectQuality = 100-((Math.Round(pFactors.CodeQualityRatio * (100-cqFactors.CodeQuality))) + pFactors.KnownIssuesRatio + pFactors.MinorIssuesRatio);
+            pFactors.CodeQuality = cqFactors;
 
             return pFactors;
         }

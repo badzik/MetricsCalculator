@@ -13,13 +13,13 @@ namespace MetricsApp.Models
 
         public static UserWithCounter GetUserWithLargestCounter(List<UserWithCounter> users)
         {
-            if (users == null)
+            if (users == null || users.Count < 1)
             {
-                return null;
-            }
-            if (users.Count < 1)
-            {
-                return null;
+                return new UserWithCounter()
+                {
+                    Counter = 0,
+                    User = new User()
+                };
             }
             UserWithCounter result = new UserWithCounter()
             {

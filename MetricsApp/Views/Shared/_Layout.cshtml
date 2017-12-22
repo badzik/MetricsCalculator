@@ -45,13 +45,13 @@
                     </a>
                     <ul class="sidenav-second-level collapse" id="collapseComponents">
                         <li>
-                            <a href="@Url.Action("Issues","Project")">Issues</a>
+                            <a class="calculateMetrics" href="@Url.Action("Issues","Project")">Issues</a>
                         </li>
                         <li>
-                            <a href="@Url.Action("CodeAnalysis","Project")">Code analysis</a>
+                            <a class="calculateMetrics" href="@Url.Action("CodeAnalysis","Project")">Code analysis</a>
                         </li>
                         <li>
-                            <a href="@Url.Action("ProjectQuaity","Project")">Project quality</a>
+                            <a class="calculateMetrics" href="@Url.Action("ProjectQuality","Project")">Project quality</a>
                         </li>
                     </ul>
                 </li>
@@ -101,7 +101,8 @@
         </div>
     </nav>
     <div class="content-wrapper">
-        @RenderBody()
+        <img class="metricsLoadingImg" style="display:none;margin: 0 auto;" src="~/Graphics/calculating.gif" />
+        <div id="contentArea">@RenderBody()</div>
     </div>
 
     <!-- /.container-fluid-->
@@ -142,6 +143,7 @@
     <script src="~/vendor/jquery-easing/jquery.easing.min.js"></script>
     <!-- Custom scripts for all pages-->
     <script src="~/js/sb-admin.min.js"></script>
+    <script src="~/js/LayoutScript.js"></script>
 </body>
 </html>
 

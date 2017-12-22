@@ -102,12 +102,17 @@
     <Content Include="css\sb-admin.css" />
     <Content Include="css\sb-admin.min.css" />
     <Content Include="Global.asax" />
+    <Content Include="Graphics\ajax_loader.gif" />
+    <Content Include="Graphics\calculating.gif" />
     <Content Include="Graphics\connected.png" />
     <Content Include="Graphics\disconnected.png" />
     <Content Include="Graphics\metrics.png" />
+    <Content Include="js\BestUserAjax.js" />
     <Content Include="js\CodeAnalysisScript.js" />
     <Content Include="js\ConnectScript.js" />
     <Content Include="js\issueChartsScript.js" />
+    <Content Include="js\LayoutScript.js" />
+    <Content Include="js\ProjectQualityScript.js" />
     <Content Include="js\sb-admin-charts.js" />
     <Content Include="js\sb-admin-charts.min.js" />
     <Content Include="js\sb-admin-datatables.js" />
@@ -163,6 +168,7 @@
     <Compile Include="SQJsonModels\IssuesList.cs" />
     <Compile Include="SQJsonModels\JsonComponent.cs" />
     <Compile Include="SQJsonModels\Measure.cs" />
+    <Compile Include="ViewModels\BestUserPartialModel.cs" />
     <Compile Include="ViewModels\CodeAnalysisViewModel.cs" />
     <Compile Include="ViewModels\ProjectQualityViewModel.cs" />
     <Compile Include="ViewModels\InfoModel.cs" />
@@ -247,6 +253,7 @@
     <Content Include="Views\Project\Issues.cshtml" />
     <Content Include="Views\Project\ProjectQuality.cshtml" />
     <Content Include="Views\Project\CodeAnalysis.cshtml" />
+    <Content Include="Views\Project\_BestUser.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

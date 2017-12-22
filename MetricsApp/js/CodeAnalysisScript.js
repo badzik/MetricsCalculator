@@ -72,7 +72,7 @@
             $('#codeQualityBox').css('color', 'red');
         }
         if (cqVal > 30 && cqVal <= 70) {
-            $('#codeQualityBox').css('color', 'yellow');
+            $('#codeQualityBox').css('color', '#e0ab0d');
         }
         if (cqVal > 70) {
             $('#codeQualityBox').css('color', 'green');
