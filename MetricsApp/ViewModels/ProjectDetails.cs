@@ -23,5 +23,8 @@ namespace MetricsApp.ViewModels
         [Required]
         [Display(Name = "Project name(SonarQube)")]
         public string SonarProjectName { get; set; }
+        [Required]
+        [Display(Name ="SonarQube token")]
+        public string SonarQubeToken { get; set; }
     }
 }

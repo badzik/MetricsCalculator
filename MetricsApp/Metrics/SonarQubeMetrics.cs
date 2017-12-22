@@ -8,6 +8,7 @@ using System.Linq;
 using System.Web;
 using MetricsApp.Models;
 using MetricsApp.Enums;
+using RestSharp.Authenticators;
 
 namespace MetricsApp.Metrics
 {
@@ -15,17 +16,19 @@ namespace MetricsApp.Metrics
     {
         public string ProjectName { get; set; }
         public string ServerUrl { get; set; }
-
-        public SonarQubeMetrics(string projectName, string serverUrl)
+        public string AuthToken { get; set; }
+        public SonarQubeMetrics(string projectName, string serverUrl, string token)
         {
             ProjectName = projectName;
             ServerUrl = serverUrl;
+            AuthToken = token;
         }
 
         public int CountBugs()
         {
             int bugsCounter=0;
             var restClient = new RestClient(ServerUrl + "/api/measures/component?metricKeys=bugs&component=" + ProjectName);
+            restClient.Authenticator = new HttpBasicAuthenticator(AuthToken, "");
             var request = new RestRequest();
             request.Method = Method.GET;
             request.AddHeader("Accept", "application/json");
@@ -40,6 +43,7 @@ namespace MetricsApp.Metrics
         {
             int linesCount=0;
             var restClient = new RestClient(ServerUrl + "/api/measures/component?metricKeys=ncloc&component=" + ProjectName);
+            restClient.Authenticator = new HttpBasicAuthenticator(AuthToken, "");
             var request = new RestRequest();
             request.Method = Method.GET;
             request.AddHeader("Accept", "application/json");
@@ -54,6 +58,7 @@ namespace MetricsApp.Metrics
         {
             int counter = 0;
             var restClient = new RestClient(ServerUrl + "/api/issues/search?componentKeys=" + ProjectName + "&types=BUG,VULNERABILITY,CODE_SMELL&severities=MINOR,INFO");
+            restClient.Authenticator = new HttpBasicAuthenticator(AuthToken, "");
             var request = new RestRequest();
             request.Method = Method.GET;
             request.AddHeader("Accept", "application/json");
@@ -68,6 +73,7 @@ namespace MetricsApp.Metrics
         {
             int counter = 0;
             var restClient = new RestClient(ServerUrl + "/api/issues/search?componentKeys=" + ProjectName + "&types=BUG,VULNERABILITY,CODE_SMELL&severities=BLOCKER,CRITICAL,MAJOR");
+            restClient.Authenticator = new HttpBasicAuthenticator(AuthToken, "");
             var request = new RestRequest();
             request.Method = Method.GET;
             request.AddHeader("Accept", "application/json");
@@ -82,6 +88,7 @@ namespace MetricsApp.Metrics
         {
             int vulCounter=0;
             var restClient = new RestClient(ServerUrl + "/api/measures/component?metricKeys=vulnerabilities&component=" + ProjectName);
+            restClient.Authenticator = new HttpBasicAuthenticator(AuthToken, "");
             var request = new RestRequest();
             request.Method = Method.GET;
             request.AddHeader("Accept", "application/json");
@@ -99,6 +106,7 @@ namespace MetricsApp.Metrics
             int page = 1;
             int numberOfPages = 1;
             var restClient = new RestClient(ServerUrl + "/api/issues/search?componentKeys=" + ProjectName);
+            restClient.Authenticator = new HttpBasicAuthenticator(AuthToken, "");
             var request = new RestRequest();
             request.Method = Method.GET;
             request.AddHeader("Accept", "application/json");
@@ -109,6 +117,7 @@ namespace MetricsApp.Metrics
             while (numberOfPages >= page)
             {
                 restClient = new RestClient(ServerUrl + "/api/issues/search?componentKeys=" + ProjectName + "&p=" + page);
+                restClient.Authenticator = new HttpBasicAuthenticator(AuthToken, "");
                 request = new RestRequest();
                 request.Method = Method.GET;
                 request.AddHeader("Accept", "application/json");
@@ -140,6 +149,7 @@ namespace MetricsApp.Metrics
             int page = 1;
             int numberOfPages = 1;
             var restClient = new RestClient(ServerUrl + "/api/issues/search?componentKeys=" + ProjectName + "&types=BUG,VULNERABILITY,CODE_SMELL&severities=BLOCKER,CRITICAL,MAJOR");
+            restClient.Authenticator = new HttpBasicAuthenticator(AuthToken, "");
             var request = new RestRequest();
             request.Method = Method.GET;
             request.AddHeader("Accept", "application/json");
@@ -150,6 +160,7 @@ namespace MetricsApp.Metrics
             while (numberOfPages >= page)
             {
                 restClient = new RestClient(ServerUrl + "/api/issues/search?componentKeys=" + ProjectName + "&types=BUG,VULNERABILITY&p=" + page);
+                restClient.Authenticator = new HttpBasicAuthenticator(AuthToken, "");
                 request = new RestRequest();
                 request.Method = Method.GET;
                 request.AddHeader("Accept", "application/json");
@@ -202,6 +213,7 @@ namespace MetricsApp.Metrics
         {
             int complexity = 0;
             var restClient = new RestClient(ServerUrl + "/api/measures/component?metricKeys=complexity&component=" + ProjectName);
+            restClient.Authenticator = new HttpBasicAuthenticator(AuthToken, "");
             var request = new RestRequest();
             request.Method = Method.GET;
             request.AddHeader("Accept", "application/json");
@@ -220,6 +232,7 @@ namespace MetricsApp.Metrics
             int page = 1;
             int numberOfPages = 1;
             var restClient = new RestClient(ServerUrl + "/api/issues/search?componentKeys=" + ProjectName + "&types=BUG,VULNERABILITY");
+            restClient.Authenticator = new HttpBasicAuthenticator(AuthToken, "");
             var request = new RestRequest();
             request.Method = Method.GET;
             request.AddHeader("Accept", "application/json");
@@ -261,6 +274,7 @@ namespace MetricsApp.Metrics
             int page = 1;
             int numberOfPages = 1;
             var restClient = new RestClient(ServerUrl + "/api/issues/search?componentKeys=" + ProjectName);
+            restClient.Authenticator = new HttpBasicAuthenticator(AuthToken, "");
             var request = new RestRequest();
             request.Method = Method.GET;
             request.AddHeader("Accept", "application/json");
@@ -271,6 +285,7 @@ namespace MetricsApp.Metrics
             while (numberOfPages >= page)
             {
                 restClient = new RestClient(ServerUrl + "/api/issues/search?componentKeys=" + ProjectName + "&p=" + page);
+                restClient.Authenticator = new HttpBasicAuthenticator(AuthToken, "");
                 request = new RestRequest();
                 request.Method = Method.GET;
                 request.AddHeader("Accept", "application/json");
@@ -300,6 +315,7 @@ namespace MetricsApp.Metrics
             int page = 1;
             int numberOfPages = 1;
             var restClient = new RestClient(ServerUrl + "/api/issues/search?componentKeys=" + ProjectName);
+            restClient.Authenticator = new HttpBasicAuthenticator(AuthToken, "");
             var request = new RestRequest();
             request.Method = Method.GET;
             request.AddHeader("Accept", "application/json");
@@ -310,6 +326,7 @@ namespace MetricsApp.Metrics
             while (numberOfPages >= page)
             {
                 restClient = new RestClient(ServerUrl + "/api/issues/search?componentKeys=" + ProjectName + "&p=" + page);
+                restClient.Authenticator = new HttpBasicAuthenticator(AuthToken, "");
                 request = new RestRequest();
                 request.Method = Method.GET;
                 request.AddHeader("Accept", "application/json");
@@ -341,6 +358,7 @@ namespace MetricsApp.Metrics
         {
             int duplicatedLines = 0;
             var restClient = new RestClient(ServerUrl + "/api/measures/component?metricKeys=duplicated_lines&component=" + ProjectName);
+            restClient.Authenticator = new HttpBasicAuthenticator(AuthToken, "");
             var request = new RestRequest();
             request.Method = Method.GET;
             request.AddHeader("Accept", "application/json");
@@ -355,6 +373,7 @@ namespace MetricsApp.Metrics
         {
             Double? coverage = null;
             var restClient = new RestClient(ServerUrl + "/api/measures/component?metricKeys=coverage&component=" + ProjectName);
+            restClient.Authenticator = new HttpBasicAuthenticator(AuthToken, "");
             var request = new RestRequest();
             request.Method = Method.GET;
             request.AddHeader("Accept", "application/json");

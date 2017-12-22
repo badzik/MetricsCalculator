@@ -12,6 +12,7 @@ using MetricsApp.ViewModels;
 using MetricsApp.Metrics;
 using MetricsApp.SQJsonModels;
 using Newtonsoft.Json;
+using RestSharp.Authenticators;
 
 namespace MetricsApp.Controllers
 {
@@ -70,6 +71,7 @@ namespace MetricsApp.Controllers
 
             //Check connection to SonarQube
             var restClient = new RestClient(projectDetails.SonarServerUrl + "/api/components/show?component=" + projectDetails.SonarProjectName);
+            restClient.Authenticator = new HttpBasicAuthenticator(projectDetails.SonarQubeToken,"");
             var request = new RestRequest();
             request.Method = Method.GET;
             request.AddHeader("Accept", "application/json");
@@ -157,7 +159,7 @@ namespace MetricsApp.Controllers
             {
                 //calculate metrics
                 GitHubMetrics ghMetrics = new GitHubMetrics(sessionInfo.ProjectDetails.GitHubProjectName, sessionInfo.ProjectDetails.GitHubProjectOwner, sessionInfo.ProjectDetails.GitHubToken);
-                SonarQubeMetrics sqMetrics = new SonarQubeMetrics(sessionInfo.ProjectDetails.SonarProjectName, sessionInfo.ProjectDetails.SonarServerUrl);
+                SonarQubeMetrics sqMetrics = new SonarQubeMetrics(sessionInfo.ProjectDetails.SonarProjectName, sessionInfo.ProjectDetails.SonarServerUrl, sessionInfo.ProjectDetails.SonarQubeToken);
                 MixedMetrics mMetrics = new MixedMetrics(ghMetrics, sqMetrics);
                 ProjectQualityViewModel pqModel = new ProjectQualityViewModel();
                 pqModel.ProjectQuality = await mMetrics.CalculateQualityFactors();
@@ -178,7 +180,7 @@ namespace MetricsApp.Controllers
             else
             {
                 GitHubMetrics ghMetrics = new GitHubMetrics(sessionInfo.ProjectDetails.GitHubProjectName, sessionInfo.ProjectDetails.GitHubProjectOwner, sessionInfo.ProjectDetails.GitHubToken);
-                SonarQubeMetrics sqMetrics = new SonarQubeMetrics(sessionInfo.ProjectDetails.SonarProjectName, sessionInfo.ProjectDetails.SonarServerUrl);
+                SonarQubeMetrics sqMetrics = new SonarQubeMetrics(sessionInfo.ProjectDetails.SonarProjectName, sessionInfo.ProjectDetails.SonarServerUrl,sessionInfo.ProjectDetails.SonarQubeToken);
                 CodeAnalysisViewModel baVmodel = new CodeAnalysisViewModel();
                 baVmodel.AverageIssueEffort = sqMetrics.CalculateAverageTimeForResolvingIssue();
                 baVmodel.EstTimeToFixAllIssues = TimeSpan.FromSeconds(sqMetrics.CalculateTimeForClosingAllIssues().TotalSeconds / await ghMetrics.GetNumberOfActiveContributorsAsync());
